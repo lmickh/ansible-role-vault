@@ -1,5 +1,13 @@
 ---
+- name: Install Vault Python library
+  pip: name=hvac state=present
+  become: true
+
 - name: Create vault config directory
+  become: true
+  file: path={{ vault_path }}/config state=directory
+
+- name: Create vault config/ssl directory
   become: true
   file: path={{ vault_path }}/config/ssl state=directory
 
@@ -7,7 +15,22 @@
   become: true
   file: path={{ vault_path }}/logs state=directory
 
-- name: Create vault config file
+# This is the cert + ca chain together
+- name: Write Vault TLS cert
+  become: true
+  copy:
+    dest: "{{ vault_path }}/config/ssl/vault.crt"
+    mode: 0644
+    content: "{{ vault_tls_cert }}"
+
+- name: Write Vault TLS key
+  become: true
+  copy:
+    dest: "{{ vault_path }}/config/ssl/vault.key"
+    mode: 0644
+    content: "{{ vault_tls_key }}"
+
+- name: Create vault server config file
   become: true
   template:
     dest: "{{ vault_path }}/config/vault.hcl"
@@ -15,26 +38,30 @@
     mode: 0644
   register: vault_service_config
 
+- name: Docker repo login
+  become: true
+  docker_login:
+    registry: "{{ vault_docker_login['registry'] }}"
+    username: "{{ vault_docker_login['username'] }}"
+    password: "{{ vault_docker_login['password'] }}"
+  when: vault_docker_login is defined
+
 - name: Create vault container
   become: true
   docker_container:
     name: "{{ vault_service }}"
-    capabilities:
-      - IPC_LOCK
+    capabilities: ["IPC_LOCK"]
     command: "{{ vault_args }}"
     detach: true
     image: "{{ vault_image }}"
     network_mode: host
-    published_ports:
-      - "{{ vault_port_listen }}"
-      - "{{ vault_port_cluster }}"
     state: present
     volumes:
       - "{{ vault_path }}/config:/vault/config:Z"
       - "{{ vault_path }}/logs:/vault/logs:Z"
   register: vault_service_config
 
-- name: Create vault service file
+- name: Create vault systemd service file
   become: true
   template:
     dest: "/etc/systemd/system/{{ vault_service }}.service"
@@ -43,15 +70,15 @@
   register: vault_service_config
   when: ansible_service_mgr == 'systemd'
 
-- name: Restart vault service
-  become: true
-  systemd:
-    name: "{{ vault_service }}.service"
-    daemon_reload: yes
-    state: restarted
-  when:
-    - vault_service_config.changed
-    - vault_enabled
+# - name: Restart vault service
+#   become: true
+#   systemd:
+#     name: "{{ vault_service }}.service"
+#     daemon_reload: yes
+#     state: restarted
+#   when:
+#     - vault_service_config.changed
+#     - vault_enabled
 
 - name: Enable vault service
   become: true

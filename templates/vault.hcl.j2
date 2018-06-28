@@ -1,2 +1,36 @@
-# This file is managed by Ansible.  Do NOT edit it manually.
-{{ vault_config | to_nice_json }}
+ha_storage "dynamodb" {
+  ha_enabled = "true"
+  region     = "{{ vault_aws_region }}"
+  table      = "{{ vault_aws_dynamodb_table }}"
+  read_capacity = {{ vault_aws_dynamodb_read_capacity }}
+  write_capacity = {{ vault_aws_dynamodb_write_capacity }}
+  access_key = "{{ vault_aws_access_key }}"
+  secret_key = "{{ vault_aws_secret_key }}"
+}
+
+storage "s3" {
+  access_key = "{{ vault_aws_access_key }}"
+  secret_key = "{{ vault_aws_secret_key }}"
+  bucket     = "{{ vault_aws_s3_bucket }}"
+  region = "{{ vault_aws_region }}"
+}
+
+api_addr = "https://{{ vault_cluster}}"
+cluster_name = "{{ vault_cluster }}"
+cluster_addr = "https://{{ ansible_hostname }}.{{ dns_zone }}:8201"
+
+
+listener "tcp" {
+  address = "0.0.0.0:8200"
+  cluster_address = "0.0.0.0:8201"
+  tls_disable = "false"
+  tls_cert_file = "/vault/config/ssl/vault.crt"
+  tls_key_file = "/vault/config/ssl/vault.key"
+  tls_require_and_verify_client_cert = "false"
+}
+
+disable_mlock = false
+
+default_lease_ttl = "768h"
+max_lease_ttl = "768h"
+ui = {{ vault_ui_enabled }}

@@ -1,12 +1,13 @@
 [Unit]
-Description=Elasticsearch in Docker
+Description=Hashicorp Vault via Docker
 After=docker.service
 Requires=docker.service
 
 [Service]
 TimeoutStartSec=0
-ExecStart=/usr/bin/docker start -a {{ elasticsearch_service }}
-ExecStop=/usr/bin/docker stop -t 20 {{ elasticsearch_service }}
+ExecStart=/usr/bin/docker start -a {{ vault_service }}
+ExecStop=/usr/bin/docker stop -t 60 {{ vault_service }}
+LimitMEMLOCK=infinity
 
 [Install]
 WantedBy=multi-user.target

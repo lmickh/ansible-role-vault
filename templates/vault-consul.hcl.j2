@@ -1,0 +1,33 @@
+backend "consul" {
+  path = "vault/"
+  scheme = "https"
+  service = "vault"
+  address = "{{ ansible_hostname }}.{{ dns_zone }}:8501"
+  service_tags = "{{ service_level }}"
+  token = "{{ vault_consul_token }}"
+  max_parallel = "128"
+  tls_ca_file = "/vault/config/ssl/consul-ca.crt"
+  tls_cert_file = "/vault/config/ssl/consul.crt"
+  tls_key_file = "/vault/config/ssl/consul.key"
+  redirect_addr = "https://{{ ansible_hostname }}.{{ dns_zone }}:8200"
+}
+
+
+cluster_name = "{{ vault_cluster }}"
+
+listener "tcp" {
+  address = "0.0.0.0:8200"
+  cluster_address = "0.0.0.0:8201"
+  tls_disable = "false"
+  tls_cert_file = "/vault/config/ssl/vault.crt"
+  tls_key_file = "/vault/config/ssl/vault.key"
+}
+
+disable_mlock = false
+
+telemetry {
+#  statsd_address = "localhost:8125"
+}
+
+default_lease_ttl = "768h"
+max_lease_ttl = "768h"

@@ -1,10 +1,18 @@
----
-vault_args: []
-vault_cluster_name: "vault.example.com"
-vault_config: []
+vault_args: "server"
+vault_cluster: "vault.{{ dns_zone }}"
 vault_enabled: true
-vault_image: vault:0.7.0
+vault_image: "vault:0.10.1"
 vault_path: "/opt/vault"
-vault_port_listen: 8200
-vault_port_cluster: 8201
 vault_service: "vault"
+vault_ui_enabled: "true"
+
+vault_aws_storage_enaled: true
+vault_aws_access_key: ""
+vault_aws_secret_key: ""
+vault_aws_region: "us-east-2"
+
+vault_aws_dynamodb_table: "my-vault-data"
+vault_aws_dynamodb_read_capacity: 10
+vault_aws_dynamodb_write_capacity: 10
+
+vault_aws_s3_bucket: "my-vault-data"
