@@ -1,0 +1,62 @@
+---
+- name: Create vault config directory
+  become: true
+  file: path={{ vault_path }}/config/ssl state=directory
+
+- name: Create vault logs directory
+  become: true
+  file: path={{ vault_path }}/logs state=directory
+
+- name: Create vault config file
+  become: true
+  template:
+    dest: "{{ vault_path }}/config/vault.hcl"
+    src: "templates/vault.hcl.j2"
+    mode: 0644
+  register: vault_service_config
+
+- name: Create vault container
+  become: true
+  docker_container:
+    name: "{{ vault_service }}"
+    capabilities:
+      - IPC_LOCK
+    command: "{{ vault_args }}"
+    detach: true
+    image: "{{ vault_image }}"
+    network_mode: host
+    published_ports:
+      - "{{ vault_port_listen }}"
+      - "{{ vault_port_cluster }}"
+    state: present
+    volumes:
+      - "{{ vault_path }}/config:/vault/config:Z"
+      - "{{ vault_path }}/logs:/vault/logs:Z"
+  register: vault_service_config
+
+- name: Create vault service file
+  become: true
+  template:
+    dest: "/etc/systemd/system/{{ vault_service }}.service"
+    src: "templates/vault.service.j2"
+    mode: 0664
+  register: vault_service_config
+  when: ansible_service_mgr == 'systemd'
+
+- name: Restart vault service
+  become: true
+  systemd:
+    name: "{{ vault_service }}.service"
+    daemon_reload: yes
+    state: restarted
+  when:
+    - vault_service_config.changed
+    - vault_enabled
+
+- name: Enable vault service
+  become: true
+  service:
+    name: "{{ vault_service }}.service"
+    state: started
+    enabled: yes
+  when: vault_enabled

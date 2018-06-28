@@ -1,0 +1,10 @@
+---
+vault_args: []
+vault_cluster_name: "vault.example.com"
+vault_config: []
+vault_enabled: true
+vault_image: vault:0.7.0
+vault_path: "/opt/vault"
+vault_port_listen: 8200
+vault_port_cluster: 8201
+vault_service: "vault"
