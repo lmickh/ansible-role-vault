@@ -1,18 +1,31 @@
 vault_args: "server"
 vault_cluster: "vault.{{ dns_zone }}"
 vault_enabled: true
-vault_image: "vault:0.10.1"
+vault_image: "vault:1.6.2"
 vault_path: "/opt/vault"
 vault_service: "vault"
+vault_log_level: "WARN"
+
 vault_ui_enabled: "true"
 
-vault_aws_storage_enaled: true
-vault_aws_access_key: ""
-vault_aws_secret_key: ""
-vault_aws_region: "us-east-2"
+vault_default_lease_ttl: "768h"
+vault_max_lease_ttl: "768h"
 
-vault_aws_dynamodb_table: "my-vault-data"
-vault_aws_dynamodb_read_capacity: 10
-vault_aws_dynamodb_write_capacity: 10
+vault_consul_address: "127.0.0.1:8500"
+vault_consul_consistency_mode: "default"
+vault_consul_max_parallel: "128"
+vault_consul_scheme: "http"
+vault_consul_token: "ChangeMe"
+vault_consul_tls_cert_file: "config/ssl/consul.crt"
+vault_consul_tls_ca_file: "config/ssl/consul-ca.crt"
+vault_consul_tls_key_file: "config/ssl/consul.key"
 
-vault_aws_s3_bucket: "my-vault-data"
+vault_seal: ""
+vault_seal_region: us-west-2
+vault_seal_kms_key_id: ""
+
+vault_tls_min_version: "tls12"
+vault_tls_require_and_verify_client_cert: false
+
+vault_tls_cert_file: "config/ssl/vault.crt"
+vault_tls_key_file: "config/ssl/vault.key"

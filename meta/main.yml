@@ -1,15 +1,8 @@
-dependencies:
-  - src: lmickh.docker
-    version: v0.2.0
+dependencies: [ ]
 galaxy_info:
   author: lmickh
-  description: Hashicorp Vault via Docker
-  license: Apache2
-  min_ansible_version: 2.4
-  platforms:
-    - name: EL
-      versions:
-        - 7
-    - name: CoreOS
+  description: Hashicorp Vault via container
+  license: "license (BSD, MIT)"
+  min_ansible_version: 2.9
   galaxy_tags:
     - vault

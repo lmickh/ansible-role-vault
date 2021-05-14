@@ -1,0 +1,53 @@
+{
+  "api_addr": "https://{{ vault_cluster }}",
+  "cluster_name": "{{ vault_cluster }}",
+  "cluster_addr": "https://{{ ansible_nodename }}:8201",
+  "disable_mlock": false,
+  "log_level": "{{ vault_log_level }}",
+  "default_lease_ttl": "{{ vault_default_lease_ttl }}",
+  "max_lease_ttl": "{{ vault_max_lease_ttl }}",
+  "ui": {{ vault_ui_enabled | bool | to_json }},
+
+  "listener": {
+    "tcp": {
+      "address": "0.0.0.0:8200",
+      "cluster_address": "0.0.0.0:8201",
+      "tls_disable": false,
+      "tls_cert_file": "/vault/{{ vault_tls_cert_file }}",
+      "tls_key_file": "/vault/{{ vault_tls_key_file}}",
+      "tls_min_version": "{{ vault_tls_min_version }}",
+      "tls_require_and_verify_client_cert": {{ vault_tls_require_and_verify_client_cert | bool | to_json }},
+    },
+  },
+
+  "backend": {
+    "consul": {
+      "address": "{{ vault_consul_address }}",
+      "consistency_mode": "{{ vault_consul_consistency_mode }}",
+      "path": "{{ vault_service }}/",
+      "max_parallel": "{{ vault_consul_max_parallel }}",
+      "scheme": "{{ vault_consul_scheme }}",
+      "service": "{{ vault_service }}",
+      "service_tags": "{{ service_level }}",
+      "token": "{{ vault_consul_token }}",
+      "tls_ca_file": "/vault/{{ vault_consul_tls_ca_file }}",
+      "tls_cert_file": "/vault/{{ vault_consul_tls_cert_file }}",
+      "tls_key_file" : "/vault/{{ vault_consul_tls_key_file }}",
+    },
+  },
+ 
+  {# Seal #}
+  {% if vault_seal == "awskms" %}
+  "seal": {
+    "awskms": {
+      "region": "{{ vault_seal_region }}",
+      "kms_key_id": "{{ vault_seal_kms_key_id }}",
+    },
+  },
+  {% endif %}
+  
+  "telemetry": {
+    "prometheus_retention_time": "4h",
+    "disable_hostname": true,
+  }
+}

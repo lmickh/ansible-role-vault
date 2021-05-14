@@ -1,0 +1,8 @@
+---
+- name: Restart vault 
+  become: true
+  systemd:
+    name: "{{ vault_service }}.service"
+    daemon_reload: yes
+    state: restarted
+  listen: restart vault
